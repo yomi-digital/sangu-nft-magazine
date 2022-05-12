@@ -4,6 +4,9 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+// TODO: Import ERC721 interface
+// TODO: Import Reentrancy guard
+
 /**
  * @title SanguMagazine
  * SanguMagazine - ERC1155 contract with IPFS support
@@ -18,6 +21,9 @@ contract SanguMagazine is ERC1155, Ownable {
     mapping(uint256 => uint256) public _minted;
     address _minterAddress;
     uint256 nonce = 0;
+
+    // TODO: Create an instance of SANGU 721 token
+    // TODO: Create vault
 
     constructor() ERC1155("URL_TO_CHANGE/{id}.json") {
         metadata_uri = "URL_TO_CHANGE/{id}.json";
@@ -111,9 +117,13 @@ contract SanguMagazine is ERC1155, Ownable {
                 canMint = false;
             }
         }
+        // TODO: Split shares among participants
         require(canMint, "SanguMagazine: Max supply reached");
         _mint(receiver, id, amount, bytes(""));
         _minted[id] = _minted[id] + amount;
         return id;
     }
+
+    // TODO: Create withdraw function
+
 }
