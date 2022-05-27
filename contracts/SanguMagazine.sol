@@ -3,15 +3,18 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
 // TODO: Import ERC721 interface
 // TODO: Import Reentrancy guard
+import "./IERC721UMi.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title SanguMagazine
  * SanguMagazine - ERC1155 contract with IPFS support
  */
-contract SanguMagazine is ERC1155, Ownable {
+contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     string public metadata_uri;
     mapping(uint256 => string) public _idToEdition;
     mapping(string => uint256) public _editionToId;
@@ -21,12 +24,15 @@ contract SanguMagazine is ERC1155, Ownable {
     mapping(uint256 => uint256) public _minted;
     address _minterAddress;
     uint256 nonce = 0;
+    mapping (address => uint256) vault; 
+    mapping (uint256 => address[]) editionRoyalties; 
 
     // TODO: Create an instance of SANGU 721 token
     // TODO: Create vault
 
-    constructor() ERC1155("URL_TO_CHANGE/{id}.json") {
+    constructor(address _passAddy) ERC1155("URL_TO_CHANGE/{id}.json") {
         metadata_uri = "URL_TO_CHANGE/{id}.json";
+        sangu721 = IERC721UMi(_passAddy);
     }
 
     /**
@@ -45,7 +51,7 @@ contract SanguMagazine is ERC1155, Ownable {
     }
 
     function prepare(
-        uint256[] memory nfts,
+        string[] storage nfts,
         string memory metadata,
         uint256 max_supply,
         uint256 price
@@ -80,10 +86,13 @@ contract SanguMagazine is ERC1155, Ownable {
             );
         }
 
-        // TODO: Check if nfts are real
+        for (uint i = 0; i < nfts.length ; i++) {
+        // TODO: check if nfts are real
+        require(sangu721.returnCreatorByNftHash(nfts[i]) != address(0));
         // TODO: Connect magazine to nfts
-        // TODO: Setup shares for each nft (maybe automatically divided by each owner)
-
+        editionRoyalties[i] = sangu721.returnCreatorByNftHash(nfts[i]); 
+        }
+        
         _idToEdition[id] = metadata;
         _editionToId[metadata] = id;
         _max_supplies[id] = max_supply;
@@ -107,7 +116,7 @@ contract SanguMagazine is ERC1155, Ownable {
         );
         uint256 id = _editionToId[metadata];
         require(
-            _prices[id] == msg.value,
+            _prices[id] == msg.value / amount, // BUG: su amount, potrebbe essere più di uno (MF: provato a risolverlo)
             "SanguMagazine: Need to send exact amount of tokens"
         );
         bool canMint = true;
@@ -118,6 +127,13 @@ contract SanguMagazine is ERC1155, Ownable {
             }
         }
         // TODO: Split shares among participants
+        uint256 ownerRoyalties = msg.value/2; 
+        vault[owner()] = ownerRoyalties; 
+        uint256 artistRoyalties = ownerRoyalties / editionRoyalties.lenght;
+        for (uint i = 0; i < nfts.length ; i++) {
+            vault[editionRoyalties[i]] = artistRoyalties; 
+            }
+
         require(canMint, "SanguMagazine: Max supply reached");
         _mint(receiver, id, amount, bytes(""));
         _minted[id] = _minted[id] + amount;
@@ -125,5 +141,12 @@ contract SanguMagazine is ERC1155, Ownable {
     }
 
     // TODO: Create withdraw function
-
+    function withdraw() external nonReentrant {
+        uint256 balance = vault[msg.sender];
+        require(balance>0, "Can't withdraw");
+        (bool success, ) = msg.sender.call{value: balance}("");
+        require(success, "Withdraw to vault failed");
+        vault[msg.sender] = 0;
+    }
+    
 }
