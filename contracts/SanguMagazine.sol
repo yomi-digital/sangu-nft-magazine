@@ -21,7 +21,7 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     mapping(uint256 => uint256) public _minted;
     address public _minterAddress;
     uint256 nonce = 0;
-    mapping(address => uint256) vault;
+    mapping(address => uint256) public vault;
     mapping(uint256 => address[]) public editionRoyalties;
     mapping(uint256 => string[]) public _editionNfts;
     // Instance of Sangu721
