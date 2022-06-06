@@ -14,16 +14,9 @@ async function main() {
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
 
     // Define variables
-    const nfts = ["NFT_IPFS_HASH_1", "NFT_IPFS_HASH_2", "NFT_IPFS_HASH_3", "NFT_IPFS_HASH_4", "NFT_IPFS_HASH_5"]
-    const magazine_metadata = "MAGAZINE_IPFS_HASH"
-    const max_supply = 500
-    const price_eth = "0.1"
-    // Calculate wei price
-    const price_wei = ethers.utils.parseEther(price_eth)
-    console.log('Final price wei', price_wei.toString())
-    // Prepare the magazine
-    const prepared = await contract.prepare(nfts, magazine_metadata, max_supply, price_wei)
-    console.log(prepared)
+    const proxy = "0xb71467e8e40e0269605d8764c759de80ed73957d"
+    const setwrongminter = await contract.setMinterAddress(proxy)
+    console.log('New minter address is', setwrongminter)
     
 }
 

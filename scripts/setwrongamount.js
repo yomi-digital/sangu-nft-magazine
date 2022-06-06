@@ -21,7 +21,7 @@ async function main() {
     // Set up minter address
     const minter = wallet.address
     // How many copies do you want to buy?
-    const amount = 2
+    const amount = 0.5
 
 
     // Check nft exist

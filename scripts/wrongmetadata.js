@@ -14,7 +14,7 @@ async function main() {
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
 
     // Define variables
-    const magazine_metadata = "MAGAZINE_IPFS_HASH"
+    const magazine_metadata = "MAGAZINE_IPFS_HASH_2"
     const price_eth = "0.1"
     // Calculate wei price
     const price_wei = ethers.utils.parseEther(price_eth)

@@ -86,9 +86,11 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         for (uint256 i = 0; i < nfts.length; i++) {
             console.log("Creator for nft %s is %s", nfts[i], sangu721.returnCreatorByNftHash(nfts[i]));
             require(sangu721.returnCreatorByNftHash(nfts[i]) != address(0), "Adding a non-existent nft");
-            editionRoyalties[i].push(sangu721.returnCreatorByNftHash(nfts[i]));
+            editionRoyalties[id].push(sangu721.returnCreatorByNftHash(nfts[i]));
+            //console.log("editionRoyalties nft %s is %s", nfts[i], editionRoyalties[id]);
         }
 
+        
         _idToEdition[id] = metadata;
         _editionToId[metadata] = id;
         _max_supplies[id] = max_supply;
@@ -96,6 +98,8 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         _editionNfts[id] = nfts;
         _editions.push(id);
         return id;
+
+        
     }
 
     function tokenCID(uint256 id) public view returns (string memory) {
@@ -112,28 +116,41 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
             "SanguMagazine: Minting a non-existent nft"
         );
         uint256 id = _editionToId[metadata];
+        console.log("Minting Edition with id %s", id);
+        console.log("Price is %s", _prices[id]);
+        console.log("msg.value is %s", msg.value);
         uint256 amount = msg.value / _prices[id];
+        console.log("You are buying %s amount of Magazines", amount);
         require(
             amount > 0,
             "SanguMagazine: Need to send exact amount of tokens"
         );
         bool canMint = true;
+        console.log("Can mint? %s", canMint);
+        console.log("Max supplies is %s", _max_supplies[id]);
+        console.log("Already minted: %s", _minted[id]);
         if (_max_supplies[id] > 0) {
             uint256 reached = _minted[id] + amount;
             if (reached > _max_supplies[id]) {
                 canMint = false;
+                console.log("Max supply reached");
             }
         }
-        // TODO: Split shares among participants
+        
         uint256 ownerRoyalties = msg.value / 2;
+        console.log("owner royalties: %s", ownerRoyalties);
+
         vault[owner()] = ownerRoyalties;
+        console.log("number of artists: %s", editionRoyalties[id].length);
         uint256 artistRoyalties = ownerRoyalties / editionRoyalties[id].length;
         for (uint256 i = 0; i < _editionNfts[id].length; i++) {
             vault[editionRoyalties[id][i]] += artistRoyalties;
         }
+        console.log("artist royalties: %s", artistRoyalties);
 
         require(canMint, "SanguMagazine: Max supply reached");
         _mint(receiver, id, amount, bytes(""));
+        console.log("we minted to %s id number %s, amount s%", receiver, id, amount);
         _minted[id] = _minted[id] + amount;
         return id;
     }

@@ -14,7 +14,7 @@ async function main() {
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
 
     // Define variables
-    const nfts = ["NFT_IPFS_HASH_1", "NFT_IPFS_HASH_2", "NFT_IPFS_HASH_3", "NFT_IPFS_HASH_4", "NFT_IPFS_HASH_5"]
+    const nfts = []
     const magazine_metadata = "MAGAZINE_IPFS_HASH"
     const max_supply = 500
     const price_eth = "0.1"
