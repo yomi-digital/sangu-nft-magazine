@@ -15,6 +15,25 @@ async function main() {
 
     // TODO: Check all the owners of the nfts
     // TODO: Check users's vault
+    // Set up minter address
+    const minter = wallet.address
+    const nfts = 5
+    const userVault = await contract.vault(minter)
+    // there is only one address! that's why it considers it like an artist
+    console.log("User vault is:", userVault.toString());
+
+    const addr1 = new ethers.Wallet.createRandom()
+    // need to have artist mint nfts with different adresses
+
+
+    for (let i = 1; i <= nfts; i++) {
+        const metadata = "NFT_IPFS_HASH_" + i
+        
+        // Checking owner of the nfts vaults
+
+        }
+
+
 }
 
 main()
