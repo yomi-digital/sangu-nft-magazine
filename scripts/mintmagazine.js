@@ -21,8 +21,8 @@ async function main() {
     // Set up minter address
     const minter = wallet.address
     // How many copies do you want to buy?
-    const amount = 2
-
+    const amount = ethers.BigNumber.from(2)
+    
 
     // Check nft exist
     const id = await contract._editionToId(magazine_metadata)
@@ -35,7 +35,7 @@ async function main() {
         process.exit(0)
     }
     
-    const amountSent = (price_wei*amount).toString()
+    const amountSent = amount.mul(price_wei)
     console.log('You are sending', amountSent.toString())
     const amountBought = amountSent / price_wei
     console.log('You are buying this amount:', amountBought.toString())
