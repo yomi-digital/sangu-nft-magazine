@@ -155,6 +155,14 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         return id;
     }
 
+    function returnArtistAddy(uint256 _id, uint256 _arrayNumber) public view returns(address) {
+        require(_arrayNumber <= _editionNfts[_id].length, "Trying to return an address outside the permitted array");
+        address artistAddy = editionRoyalties[_id][_arrayNumber];
+        return artistAddy;
+        //console.log("Returning Arist Address %s for %s id array position number %s", artistAddy, _id, _arrayNumber);
+
+    } 
+
     function withdraw() external nonReentrant {
         uint256 balance = vault[msg.sender];
         require(balance > 0, "Can't withdraw");
