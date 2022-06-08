@@ -13,26 +13,22 @@ async function main() {
     // Create contract instance
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
 
-    // TODO: Check all the owners of the nfts
+ 
     // TODO: Check users's vault
-    // Set up minter address
     const minter = wallet.address
     const nfts = 5
+    const magazine_metadata = "MAGAZINE_IPFS_HASH"
+    const id = await contract._editionToId(magazine_metadata)
     const userVault = await contract.vault(minter)
-    // there is only one address! that's why it considers it like an artist
-    console.log("User vault is:", userVault.toString());
+    console.log("User vault is:", userVault.toString())
 
-    const addr1 = new ethers.Wallet.createRandom()
-    // need to have artist mint nfts with different adresses
-
-
-    for (let i = 1; i <= nfts; i++) {
-        const metadata = "NFT_IPFS_HASH_" + i
-        
-        // Checking owner of the nfts vaults
-
-        }
-
+   // TODO: Check all the owners of the nfts
+   for (let i = 1; i <= nfts; i++) {
+    const artistAddy = await contract.editionRoyalties(id)[i]
+    console.log("Artist address is:", artistAddy)
+    //const aristVault = await contract.vault(artistAddy)
+    //console.log("Artist vault is:", artistVault.toString())
+    }
 
 }
 
