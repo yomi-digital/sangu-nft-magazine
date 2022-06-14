@@ -36,10 +36,15 @@ async function main() {
         // Check if not exists
         if (!exists) {
             // Mint the NFT
-            const artist = new ethers.Wallet.createRandom().address
-            const mint_nft = await contract721.mintNFT(artist, metadata)
+            const pKey = new ethers.Wallet.createRandom()//.connect(provider)
+            const artistSigner = new ethers.Wallet(pKey, provider);
+            const artistaddy = artistSigner.address
+            console.log("Artist address", artistaddy)
+            const mint_nft = await contract721.mintNFT(artistaddy, metadata)
             await mint_nft.wait()
             console.log('Mint done!')
+                       
+
         }
     }
 }

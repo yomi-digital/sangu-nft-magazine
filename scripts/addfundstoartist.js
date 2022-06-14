@@ -13,19 +13,43 @@ async function main() {
     // Create contract instance
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
 
-
     const minter = wallet.address
     const nfts = 5
     const magazine_metadata = "MAGAZINE_IPFS_HASH"
     const id = await contract._editionToId(magazine_metadata)
-    const userVault = await contract.vault(minter)
-    console.log("User vault is:", userVault.toString())
+    const userBalanceinitial = await provider.getBalance(minter)
+    console.log("Minter balance is", userBalanceinitial.toString())
+
+
+
+
 
     for (let i = 0; i < nfts; i++) {
         const artistAddy = await contract.returnArtistAddy(id, i)
-        const artistVault = await contract.vault(artistAddy)
-        console.log("Artist address %s vault is %s:", artistAddy, artistVault)
+        let receiverAddress = artistAddy
+        let amountInEther = '0.01'
+        let tx = {
+            to: receiverAddress,
+            // Convert currency unit from ether to wei
+            value: ethers.utils.parseEther(amountInEther)
+        }
+    
+        await wallet.sendTransaction(tx)
+            .then((txObj) => {
+                console.log('txHash', txObj.hash)
+            })
+    
+        const newArtistBalance = await provider.getBalance(artistAddy)
+        console.log("After transaction artist with address %s has balance of %s", receiverAddress.toString(), newArtistBalance.toString())
     }
+
+
+
+    const userBalancepost = await provider.getBalance(minter)
+    console.log("Minter balance after transfer is", userBalancepost.toString())
+
+
+
 
 }
 
