@@ -25,20 +25,27 @@ async function main() {
     console.log("Minter %s withdrew all his/her vault", minter)
 
 
-    //for (let i = 0; i < nfts; i++) {
-    const artistAddy = await contract.returnArtistAddy(id, 1)
-    console.log("Artist address", artistAddy)
+    for (let i = 1; i < nfts; i++) {
+        const path = i + 2
+        let artistWallet = new ethers.Wallet.fromMnemonic(configs.owner_mnemonic, "m/44'/60'/0'/0/" + path).connect(provider)
+        const artistAddy = await contract.returnArtistAddy(id, i)
+        if (artistWallet.address.toUpperCase() === artistAddy.toUpperCase()) {
+            console.log("Artist address", artistAddy)
 
-    //const artistWallet = ethers.Wallet(artistAddy)
-    const newContract = new ethers.Contract(configs.contract_address, ABI.abi, artistAddy.address)
-    console.log("new contract", newContract)
+            //const artistWallet = ethers.Wallet(artistAddy)
+            const newContract = new ethers.Contract(configs.contract_address, ABI.abi, artistAddy)
+            console.log("new contract", newContract)
 
-    const withdrawArtist = await newContract.withdraw( {from: artistAddy})
-    //.connect(artistAddy.address)
-    console.log("Artist %s withdrew all his/her vault. Their balance is s%", artistAddy, artistBalance)
-
-
-    //}
+            const withdrawArtist = await newContract.withdraw()
+            console.log(withdrawArtist)
+            await withdrawArtist.wait()
+            
+            const artistBalance = await contract.vault(minter)
+            console.log("Artist %s withdrew all his/her vault. Their balance is s%", artistAddy, artistBalance)
+        } else {
+            console.log("Can't derive address correctly")
+        }
+    }
 
 
 
