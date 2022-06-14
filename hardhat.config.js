@@ -26,7 +26,7 @@ if (process.env.ACCOUNTS !== undefined) {
       if (k === 'hardhat') {
         hardhatConfigs.networks[k].accounts.push({
           privateKey: process.env.ACCOUNTS.split(',')[a],
-          balance: "10000000000000000000000000000000000000"
+          balance: "1000000000000000000"
         })
       } else {
         hardhatConfigs.networks[k].accounts.push(process.env.ACCOUNTS.split(',')[a])
