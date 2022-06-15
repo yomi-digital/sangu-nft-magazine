@@ -5,5 +5,4 @@ yarn task mint721 hardhat
 yarn task prepare hardhat
 yarn task mintmagazine hardhat
 yarn task vault hardhat
-yarn task addfundstoartist hardhat
 yarn task withdraw hardhat
