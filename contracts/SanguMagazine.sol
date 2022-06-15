@@ -22,7 +22,7 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     /// @notice Array to keep track of magazine editions
     uint256[] public _editions;
 
-    /// @notice nonce for the creation of magazine id
+    /// @notice nonce for the generation of magazine id
     uint256 nonce = 0;
 
     /// @notice mappings to track magazine edition, max supply, pricing
@@ -37,13 +37,13 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     /// @notice track balances of contract owner and artits
     mapping(address => uint256) public vault;
 
-    /// @notice tracks the artists addresses for the royalties of the magazine edition
+    /// @notice tracks the artists addresses for the royalties each magazine edition
     mapping(uint256 => address[]) public editionRoyalties;
 
     /// @notice maps magazine edition to the string of nfts inside it
     mapping(uint256 => string[]) public _editionNfts;
 
-    /// @notice Instance of Sangu721
+    /// @notice Instance of Sangu721 contract
     IERC721 private sangu721;
 
     constructor(address _passAddy) ERC1155("URL_TO_CHANGE/{id}.json") {
@@ -65,7 +65,7 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     /// @notice prepares magazine for minting and assigns royalties to artists
     /// @param nfts array of nfts metadata
     /// @param metadata metadata of magazine
-    /// @param max_supply maximum amount of magazines to mint
+    /// @param max_supply maximum amount of magazines supply
     /// @param price set price per issue
     function prepare(
         string[] memory nfts,
@@ -104,11 +104,6 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         }
 
         for (uint256 i = 0; i < nfts.length; i++) {
-            console.log(
-                "Creator for nft %s is %s",
-                nfts[i],
-                sangu721.returnCreatorByNftHash(nfts[i])
-            );
             require(
                 sangu721.returnCreatorByNftHash(nfts[i]) != address(0),
                 "Adding a non-existent nft"
@@ -122,6 +117,7 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         _prices[id] = price;
         _editionNfts[id] = nfts;
         _editions.push(id);
+
         return id;
     }
 
@@ -130,7 +126,7 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     }
 
     /// @notice minting the magazine payable function
-    /// @param receiver who receives the magazine
+    /// @param receiver address who receives the magazine
     /// @param metadata metadata input for the magazine
     function mint(address receiver, string memory metadata)
         public
@@ -149,8 +145,8 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
             amount > 0,
             "SanguMagazine: Need to send exact amount of tokens"
         );
-        bool canMint = true;
 
+        bool canMint = true;
         if (_max_supplies[id] > 0) {
             uint256 reached = _minted[id] + amount;
             if (reached > _max_supplies[id]) {
@@ -170,10 +166,11 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         require(canMint, "SanguMagazine: Max supply reached");
         _mint(receiver, id, amount, bytes(""));
         _minted[id] = _minted[id] + amount;
+
         return id;
     }
 
-    /// @notice to extract the address of the artist, external function
+    /// @notice function to extract the address of the artist, external function
     /// @param _id magazine id
     /// @param _arrayNumber the number in the array you want to pass in
     function returnArtistAddy(uint256 _id, uint256 _arrayNumber)
