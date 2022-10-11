@@ -155,6 +155,8 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
             }
         }
 
+        require(canMint, "SanguMagazine: Max supply reached");
+        
         uint256 ownerRoyalties = msg.value / 2;
         uint256 artistRoyalties = ownerRoyalties / editionRoyalties[id].length;
 
@@ -163,7 +165,6 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
             vault[editionRoyalties[id][i]] += artistRoyalties;
         }
 
-        require(canMint, "SanguMagazine: Max supply reached");
         _mint(receiver, id, amount, bytes(""));
         _minted[id] = _minted[id] + amount;
 
