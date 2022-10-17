@@ -8,3 +8,4 @@ cache
 artifacts
 configs/*
 !configs/example.json
+.env
