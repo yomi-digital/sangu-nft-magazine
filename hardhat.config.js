@@ -6,7 +6,7 @@ let hardhatConfigs = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {},
-    rinkeby: {
+    goerli: {
       url: provider
     },
     ropsten: {
@@ -14,7 +14,10 @@ let hardhatConfigs = {
     },
     mainnet: {
       url: provider
-    }
+    },
+    polygon: {
+      url: provider
+    },
   },
   solidity: "0.8.6",
 }
@@ -44,11 +47,11 @@ if (process.env.PROVIDER !== undefined) {
 }
 
 if (process.env.POLYGONSCAN !== undefined && process.env.POLYGONSCAN !== '') {
-  hardhatConfigs.etherscan = { apiKey: { polygonMumbai: process.env.POLYGONSCAN } }
+  hardhatConfigs.etherscan = { apiKey: { polygonMumbai: process.env.POLYGONSCAN, polygon: process.env.POLYGONSCAN } }
 }
 
 if (process.env.ETHERSCAN !== undefined && process.env.ETHERSCAN !== '') {
-  hardhatConfigs.etherscan = { apiKey: { mainnet: process.env.ETHERSCAN, rinkeby: process.env.ETHERSCAN, ropsten: process.env.ETHERSCAN, goerli: process.env.ETHERSCAN } }
+  hardhatConfigs.etherscan = { apiKey: { mainnet: process.env.ETHERSCAN, ropsten: process.env.ETHERSCAN, goerli: process.env.ETHERSCAN } }
 }
 
 module.exports = hardhatConfigs;

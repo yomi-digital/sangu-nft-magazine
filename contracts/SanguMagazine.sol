@@ -46,8 +46,8 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     /// @notice Instance of Sangu721 contract
     IERC721 private sangu721;
 
-    constructor(address _passAddy) ERC1155("URL_TO_CHANGE/{id}.json") {
-        metadata_uri = "URL_TO_CHANGE/{id}.json";
+    constructor(address _passAddy) ERC1155("https://lionfish-app-jtk2f.ondigitalocean.app/nfts/{id}") {
+        metadata_uri = "https://lionfish-app-jtk2f.ondigitalocean.app/nfts/{id}";
         sangu721 = IERC721(_passAddy);
     }
 
