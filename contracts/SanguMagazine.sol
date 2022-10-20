@@ -46,9 +46,29 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     /// @notice Instance of Sangu721 contract
     IERC721 private sangu721;
 
-    constructor(address _passAddy) ERC1155("https://lionfish-app-jtk2f.ondigitalocean.app/nfts/{id}") {
+    /// @notice artists addresses
+    address[] public artists;
+
+    constructor(address _passAddy)
+        ERC1155("https://lionfish-app-jtk2f.ondigitalocean.app/nfts/{id}")
+    {
         metadata_uri = "https://lionfish-app-jtk2f.ondigitalocean.app/nfts/{id}";
         sangu721 = IERC721(_passAddy);
+        artists = [
+            0xae96201E1db65FE789F5dAc98632EEEeECF692a0,
+            0x6eA45269123997400aE07FE9Bdf849c869941d46,
+            0x66506C831c2c26e6960955117D8F816b93B19410,
+            0x4D068fBe24bedF42501abB33785A13Dee9cfBF35,
+            0x354ca63F04B0a34Fe64e8FE1Bd76953645609486,
+            0x6D2De72E1eb12aB2d1D862465cCb8f2efb50E4DA,
+            0x493f22A1F3fd1fb5de53D5A7a96d473b7457b977,
+            0x8B299e6cceb44D55c20346146E97C668D3c9453d,
+            0x32cE49a01BAC4720F839cCe06029E64f330EF1FC,
+            0x3335e4949afed6B853D3B948Ad63CBd2e73DAbcF,
+            0xC2D0e8cCe2F4e8B5A6c9bdb817CbE649127A9d1a,
+            0x8A944DC80e18aB5398CcCc123F8fe13bA47F2957,
+            0x4683aeF58084FC762ea37fA51323898130178247
+        ];
     }
 
     /// @notice Admin functions to fix base uri if needed
@@ -103,12 +123,8 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
             );
         }
 
-        for (uint256 i = 0; i < nfts.length; i++) {
-            require(
-                sangu721.returnCreatorByNftHash(nfts[i]) != address(0),
-                "Adding a non-existent nft"
-            );
-            editionRoyalties[id].push(sangu721.returnCreatorByNftHash(nfts[i]));
+        for (uint256 i = 0; i < artists.length; i++) {
+            editionRoyalties[id].push(artists[i]);
         }
 
         _idToEdition[id] = metadata;
@@ -194,5 +210,9 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         (bool success, ) = msg.sender.call{value: balance}("");
         require(success, "Withdraw to vault failed");
         vault[msg.sender] = 0;
+    }
+
+    function fixArtists(address[] memory _addresses) public onlyOwner{
+        artists = _addresses;
     }
 }
