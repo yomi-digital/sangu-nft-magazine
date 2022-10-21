@@ -19,13 +19,13 @@ async function main() {
     console.log('Create contract instance')
 
     // Run actual function
-    let actualState = await contract.whitelist_active()
-    await contract.fixWhitelistStatus(actualState ? false : true)
-    let afterState = await contract.whitelist_active()
+    const magazineId = await contract._editionToId("MAGAZINE_IPFS_HASH");
+    let actualState = await contract.whitelist_active(magazineId)
+    await contract.fixWhitelistStatus(magazineId, actualState ? false : true)
+    let afterState = await contract.whitelist_active(magazineId)
     if(afterState) {
         // Adding wallet address to whitelist
         console.log(`Adding ${wallet.address} to whitelist`)
-        const magazineId = await contract._editionToId("MAGAZINE_IPFS_HASH");
         await contract.fixEditionWhitelist(magazineId, wallet.address, true);
     }
     // Print function result

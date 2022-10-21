@@ -14,7 +14,6 @@ async function main() {
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
 
     // Define variables
-    const nfts = []
     const magazine_metadata = "MAGAZINE_IPFS_HASH"
     const max_supply = 500
     const price_eth = "0.1"
@@ -37,7 +36,7 @@ async function main() {
     const price_wei = ethers.utils.parseEther(price_eth)
     console.log('Final price wei', price_wei.toString())
     // Prepare the magazine
-    const prepared = await contract.prepare(nfts, magazine_metadata, max_supply, price_wei, artists)
+    const prepared = await contract.prepare(magazine_metadata, max_supply, price_wei, artists)
     console.log(prepared)
     
 }

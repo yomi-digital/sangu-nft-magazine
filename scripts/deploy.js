@@ -5,7 +5,7 @@ async function main() {
   const configs = JSON.parse(fs.readFileSync(process.env.CONFIG).toString())
   console.log('Deploying contract..')
   const Contract = await hre.ethers.getContractFactory(configs.contract_name);
-  const contract = await Contract.deploy(...configs.constructor_arguments);
+  const contract = await Contract.deploy();
   console.log('Deploy transaction is: ' + contract.deployTransaction.hash)
   await contract.deployed();
   console.log("Contract deployed to:", contract.address);

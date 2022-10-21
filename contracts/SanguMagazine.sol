@@ -4,7 +4,6 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
-import "./IERC721UMi.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /// @title SanguMagazine
@@ -25,7 +24,8 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     /// @notice nonce for the generation of magazine id
     uint256 nonce = 0;
 
-    bool public whitelist_active;
+    /// @notice Track how many ERC1155 magazines have been minted
+    mapping(uint256 => bool) public whitelist_active;
 
     /// @notice mappings to track magazine edition, max supply, pricing
     mapping(uint256 => string) public _idToEdition;
@@ -42,20 +42,13 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     /// @notice tracks the artists addresses for the royalties each magazine edition
     mapping(uint256 => address[]) public editionRoyalties;
 
-    /// @notice maps magazine edition to the string of nfts inside it
-    mapping(uint256 => string[]) public _editionNfts;
-
     /// @notice tracks the whitelisted addresses for each edition
     mapping(uint256 => mapping(address => bool)) public whitelists;
 
-    /// @notice Instance of Sangu721 contract
-    IERC721 private sangu721;
-
-    constructor(address _passAddy)
+    constructor()
         ERC1155("https://lionfish-app-jtk2f.ondigitalocean.app/nfts/{id}")
     {
         metadata_uri = "https://lionfish-app-jtk2f.ondigitalocean.app/nfts/{id}";
-        sangu721 = IERC721(_passAddy);
     }
 
     /// @notice Admin functions to fix base uri if needed
@@ -70,13 +63,11 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     }
 
     /// @notice prepares magazine for minting and assigns royalties to artists
-    /// @param nfts array of nfts metadata
     /// @param metadata metadata of magazine
     /// @param max_supply maximum amount of magazines supply
     /// @param price set price per issue
     /// @param _artists magazine artists addresses
     function prepare(
-        string[] memory nfts,
         string memory metadata,
         uint256 max_supply,
         uint256 price,
@@ -89,10 +80,6 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         require(
             _editionToId[metadata] == 0,
             "SanguMagazine: Trying to push same metadata to another id"
-        );
-        require(
-            nfts.length > 0,
-            "SanguMagazine: Must add some NFTs from original collection"
         );
         uint256 id = uint256(
             keccak256(
@@ -116,7 +103,6 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         _editionToId[metadata] = id;
         _max_supplies[id] = max_supply;
         _prices[id] = price;
-        _editionNfts[id] = nfts;
         _editions.push(id);
 
         return id;
@@ -135,12 +121,12 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         returns (uint256)
     {
         uint256 id = _editionToId[metadata];
-        require(
-            id > 0,
-            "SanguMagazine: Minting a non-existent nft"
-        );
-        if(whitelist_active) {
-            require(whitelists[id][msg.sender] == true, "Address isn't whitelisted");
+        require(id > 0, "SanguMagazine: Minting a non-existent nft");
+        if (whitelist_active[id]) {
+            require(
+                whitelists[id][msg.sender] == true,
+                "Address isn't whitelisted"
+            );
         }
 
         uint256 amount = msg.value / _prices[id];
@@ -165,7 +151,7 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         uint256 artistRoyalties = ownerRoyalties / editionRoyalties[id].length;
 
         vault[owner()] = ownerRoyalties;
-        for (uint256 i = 0; i < _editionNfts[id].length; i++) {
+        for (uint256 i = 0; i < editionRoyalties[id].length; i++) {
             vault[editionRoyalties[id][i]] += artistRoyalties;
         }
 
@@ -183,10 +169,6 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         view
         returns (address)
     {
-        require(
-            _arrayNumber <= _editionNfts[_id].length,
-            "Trying to return an address outside the permitted array"
-        );
         address artistAddy = editionRoyalties[_id][_arrayNumber];
         return artistAddy;
     }
@@ -207,11 +189,16 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         editionRoyalties[_editionId] = _addresses;
     }
 
-    function fixWhitelistStatus(bool _state) public onlyOwner {
-        whitelist_active = _state;
+    function fixWhitelistStatus(uint256 _editionId, bool _state) public onlyOwner {
+        require(keccak256(bytes(_idToEdition[_editionId])) != keccak256(bytes("")), "Invalid edition id");
+        whitelist_active[_editionId] = _state;
     }
 
-    function fixEditionWhitelist(uint256 _editionId, address _address, bool _state) public onlyOwner {
+    function fixEditionWhitelist(
+        uint256 _editionId,
+        address _address,
+        bool _state
+    ) public onlyOwner {
         require(keccak256(bytes(_idToEdition[_editionId])) != keccak256(bytes("")), "Invalid edition id");
         whitelists[_editionId][_address] = _state;
     }
