@@ -25,6 +25,8 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     /// @notice nonce for the generation of magazine id
     uint256 nonce = 0;
 
+    bool public whitelist_active;
+
     /// @notice mappings to track magazine edition, max supply, pricing
     mapping(uint256 => string) public _idToEdition;
     mapping(string => uint256) public _editionToId;
@@ -42,6 +44,9 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
 
     /// @notice maps magazine edition to the string of nfts inside it
     mapping(uint256 => string[]) public _editionNfts;
+
+    /// @notice tracks the whitelisted addresses for each edition
+    mapping(uint256 => mapping(address => bool)) public whitelists;
 
     /// @notice Instance of Sangu721 contract
     IERC721 private sangu721;
@@ -129,12 +134,15 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         payable
         returns (uint256)
     {
+        uint256 id = _editionToId[metadata];
         require(
-            _editionToId[metadata] > 0,
+            id > 0,
             "SanguMagazine: Minting a non-existent nft"
         );
+        if(whitelist_active) {
+            require(whitelists[id][msg.sender] == true, "Address isn't whitelisted");
+        }
 
-        uint256 id = _editionToId[metadata];
         uint256 amount = msg.value / _prices[id];
 
         require(
@@ -152,7 +160,7 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         }
 
         require(canMint, "SanguMagazine: Max supply reached");
-        
+
         uint256 ownerRoyalties = msg.value / 2;
         uint256 artistRoyalties = ownerRoyalties / editionRoyalties[id].length;
 
@@ -192,7 +200,19 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
         vault[msg.sender] = 0;
     }
 
-    function fixArtists(uint256 _editionId, address[] memory _addresses) public onlyOwner {
+    function fixArtists(uint256 _editionId, address[] memory _addresses)
+        public
+        onlyOwner
+    {
         editionRoyalties[_editionId] = _addresses;
+    }
+
+    function fixWhitelistStatus(bool _state) public onlyOwner {
+        whitelist_active = _state;
+    }
+
+    function fixEditionWhitelist(uint256 _editionId, address _address, bool _state) public onlyOwner {
+        require(keccak256(bytes(_idToEdition[_editionId])) != keccak256(bytes("")), "Invalid edition id");
+        whitelists[_editionId][_address] = _state;
     }
 }
