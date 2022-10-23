@@ -18,6 +18,9 @@ let hardhatConfigs = {
     polygon: {
       url: provider
     },
+    polygonMumbai: {
+      url: provider
+    }
   },
   solidity: "0.8.6",
 }

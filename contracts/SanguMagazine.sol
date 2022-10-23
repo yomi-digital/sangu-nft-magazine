@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 /// @title SanguMagazine
 /// @notice An ERC1155 contract with IPFS support representing a magazine.
@@ -55,6 +56,19 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     function setURI(string memory newuri) public onlyOwner {
         metadata_uri = newuri;
         _setURI(newuri);
+    }
+
+    function uri(uint256 _editionId)
+        public
+        view
+        override
+        returns (string memory)
+    {
+        require(
+            keccak256(bytes(_idToEdition[_editionId])) != keccak256(bytes("")),
+            "Invalid edition id"
+        );
+        return string(abi.encodePacked("https://lionfish-app-jtk2f.ondigitalocean.app/nfts/", Strings.toString(_editionId)));
     }
 
     /// @notice Admin functions to set the proxy address
