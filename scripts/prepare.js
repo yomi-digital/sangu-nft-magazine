@@ -16,7 +16,7 @@ async function main() {
     // Define variables
     const magazine_metadata = "MAGAZINE_IPFS_HASH"
     const max_supply = 500
-    const price_eth = "0.1"
+    const price_eth = "0.0001"
     const artists = [
         "0xae96201E1db65FE789F5dAc98632EEEeECF692a0",
         "0x6eA45269123997400aE07FE9Bdf849c869941d46",
@@ -38,7 +38,8 @@ async function main() {
     // Prepare the magazine
     const prepared = await contract.prepare(magazine_metadata, max_supply, price_wei, artists)
     console.log(prepared)
-
+    await prepared.wait()
+    console.log("Magazine prepared.")
 }
 
 main()

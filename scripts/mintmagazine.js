@@ -15,17 +15,19 @@ async function main() {
 
     // Define variables
     const magazine_metadata = "MAGAZINE_IPFS_HASH"
-    const price_eth = "0.1"
+    const id = 1
+    const price_eth = "0.0001"
     // Calculate wei price
     const price_wei = ethers.utils.parseEther(price_eth)
     // Set up minter address
     const minter = wallet.address
     // How many copies do you want to buy?
-    const amount = ethers.BigNumber.from(2)
+    const amount = ethers.BigNumber.from(1)
     
 
     // Check nft exist
-    const id = await contract._editionToId(magazine_metadata)
+    // const id = await contract._editionToId(magazine_metadata)
+    console.log("Id of magazine is:", id)
     const price = await contract._prices(id)
     if (typeof id != 'undefined' | price != price_wei) {
         console.log('Magazine id is', id.toString()) 
@@ -47,8 +49,9 @@ async function main() {
     }
        
     const mintmagazine = await contract.mint(minter, magazine_metadata,{value: amountSent})
-    console.log('Magazine Mint done!')
-
+    console.log('Mint in process..')
+    await mintmagazine.wait()
+    console.log("Magazine minted.")
 }
 
 main()

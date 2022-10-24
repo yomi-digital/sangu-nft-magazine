@@ -18,20 +18,12 @@ async function main() {
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
     console.log('Create contract instance')
 
-    // Setup variables and print a log
-    const minter = wallet.address
-    console.log('Adding minter to contract ' + minter)
-    // Reading previous state
-    const checkPrevMinter = await contract._minterAddress()
-    console.log('Previous minter is:', checkPrevMinter)
     // Run actual function
-    const result = await contract.setMinterAddress(minter)
-    // Print function result
-    console.log(result)
+    console.log("Setting new uri..")
+    const result = await contract.setURI("https://raw.githubusercontent.com/yomi-digital/metadata-sangu/main/{id}.json")
+    console.log("Pending transaction at", result.hash)
     await result.wait()
-    // Reading before state
-    const checkAfterMinter = await contract._minterAddress()
-    console.log('After minter is:', checkAfterMinter)
+    console.log("Uri changed.")
 }
 
 main()

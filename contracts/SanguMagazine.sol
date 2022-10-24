@@ -3,7 +3,6 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /// @title SanguMagazine
@@ -21,8 +20,8 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     /// @notice Array to keep track of magazine editions
     uint256[] public _editions;
 
-    /// @notice nonce for the generation of magazine id
-    uint256 nonce = 0;
+    /// @notice editionCounter for the generation of magazine id
+    uint256 editionCounter = 0;
 
     /// @notice Track how many ERC1155 magazines have been minted
     mapping(uint256 => bool) public whitelist_active;
@@ -46,9 +45,9 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
     mapping(uint256 => mapping(address => bool)) public whitelists;
 
     constructor()
-        ERC1155("https://lionfish-app-jtk2f.ondigitalocean.app/nfts/{id}")
+        ERC1155("https://raw.githubusercontent.com/yomi-digital/metadata-sangu/main/{id}.json")
     {
-        metadata_uri = "https://lionfish-app-jtk2f.ondigitalocean.app/nfts/{id}";
+        metadata_uri = "https://raw.githubusercontent.com/yomi-digital/metadata-sangu/main/{id}.json";
     }
 
     /// @notice Admin functions to fix base uri if needed
@@ -81,30 +80,14 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
             _editionToId[metadata] == 0,
             "SanguMagazine: Trying to push same metadata to another id"
         );
-        uint256 id = uint256(
-            keccak256(
-                abi.encodePacked(nonce, msg.sender, blockhash(block.number - 1))
-            )
-        );
-        while (bytes(_idToEdition[id]).length > 0) {
-            nonce += 1;
-            id = uint256(
-                keccak256(
-                    abi.encodePacked(
-                        nonce,
-                        msg.sender,
-                        blockhash(block.number - 1)
-                    )
-                )
-            );
-        }
+        editionCounter++;
+        uint256 id = editionCounter;
         editionRoyalties[id] = _artists;
         _idToEdition[id] = metadata;
         _editionToId[metadata] = id;
         _max_supplies[id] = max_supply;
         _prices[id] = price;
         _editions.push(id);
-
         return id;
     }
 
@@ -141,7 +124,6 @@ contract SanguMagazine is ERC1155, ReentrancyGuard, Ownable {
             uint256 reached = _minted[id] + amount;
             if (reached > _max_supplies[id]) {
                 canMint = false;
-                console.log("Max supply reached");
             }
         }
 

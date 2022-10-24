@@ -20,11 +20,18 @@ async function main() {
     const id = await contract._editionToId(magazine_metadata)
     const userVault = await contract.vault(minter)
     console.log("User vault is:", userVault.toString())
-
-    for (let i = 0; i < nfts; i++) {
-        const artistAddy = await contract.returnArtistAddy(id, i)
-        const artistVault = await contract.vault(artistAddy)
-        console.log("Artist address %s vault is %s:", artistAddy, artistVault)
+    let artistAddy = "SEARCH"
+    let i = 0
+    while (artistAddy !== "0x0000000000000000000000000000000000000000") {
+        try {
+            artistAddy = await contract.returnArtistAddy(id, i)
+            const artistVault = await contract.vault(artistAddy)
+            console.log("Artist address %s vault is %s:", artistAddy, artistVault)
+            i++
+        } catch (e) {
+            console.log("Error while reading vault")
+            console.log(e.message)
+        }
     }
 
 }
