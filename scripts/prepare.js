@@ -14,9 +14,9 @@ async function main() {
     const contract = new ethers.Contract(configs.contract_address, ABI.abi, wallet)
 
     // Define variables
-    const magazine_metadata = "MAGAZINE_IPFS_HASH"
-    const max_supply = 500
-    const price_eth = "0.0001"
+    const magazine_metadata = "QmVXViMtXuJUV5UYg5c43CFH4Vs9RM3PNpxzRNYnmPNd7d"
+    const max_supply = 200
+    const price_eth = "0.00095"
     const artists = [
         "0xae96201E1db65FE789F5dAc98632EEEeECF692a0",
         "0x6eA45269123997400aE07FE9Bdf849c869941d46",
